@@ -83,7 +83,7 @@ hx는 이 셋을 **파일로 강제**한다. 요구는 표(R)에, 조건은 장�
    - 루트에 `AGENTS.md PLAN.md WORKLOG.md DECISIONS.md`, `.agents/skills/`(5), `.codex/agents/verifier.toml`, `verify/`, `data/DATA_CARD.md`가 생긴다. 있던 파일은 그대로 둔다. 과제 README가 있으면 맨 아래에 제출 절 틀을 덧붙인다.
    - init이 git 사용자 이름이 없으면 설정하고 `setup` 커밋까지 한다. 과제가 준 데이터 파일은 어디 있든 원본으로 잠근다.
    - 과제가 준 데이터가 `data/raw` 밖에 있으면 옮기지 않는다(원본 보호). 과제 README가 다른 위치를 정했으면 그것을 따른다.
-3. 사용자에게 알린다: "Codex를 껐다 켜 주세요(`/exit` → `codex`). 그래야 AGENTS.md가 적용됩니다." 하위 에이전트(verifier)는 기본으로 켜져 있어 따로 켤 것이 없다.
+3. 사용자에게 **init 이 찍어 준 줄을 그대로** 알린다: "`/exit` 한 뒤 터미널에서 `cd <과제 루트> && codex` 를 쳐 주세요. 그래야 AGENTS.md가 적용됩니다." (Codex 를 켠 폴더와 과제 루트가 다르면 AGENTS.md·skills 가 안 잡힌다.) 하위 에이전트(verifier)는 기본으로 켜져 있어 따로 켤 것이 없다.
 4. (새 세션에서) 사용자가 확인: `/status`(Agents.md 줄, 5시간 한도 남은 %와 초기화 시각) → `/skills`에 5개 → "지금 적용 중인 규칙 3줄 요약해줘" → "verifier 에이전트로 README 첫 줄만 읽어 봐".
    - skills가 안 보여도 AGENTS.md "상태 → 절차" 표가 같은 파일을 읽게 하므로 그대로 진행한다.
    - verifier가 안 뜨면 검증은 두 번째 터미널에서 `cd verify && codex`.

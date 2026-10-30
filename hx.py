@@ -141,7 +141,8 @@ def cmd_init(args):
     if kept: print(f"있어서 둠: {', '.join(kept)}")
     print(f"시작 {start} · 원본 데이터 {len(raw_hashes())}개 해시 저장")
     if inside: print(f"참고: 하네스 폴더({HX.name}/)가 과제 루트 안에 있어 git·원본 검사에서 제외했다. 과제 루트가 홈(~)이면 정상이다.")
-    print("다음: Codex 껐다 켜기(/exit → codex) → /status(Agents.md 줄·한도) → /skills → '규칙 3줄 요약' → 'verifier로 README 첫 줄 읽어 봐' → 과제 README 읽고 합의")
+    print("다음 (사용자가 칠 것, 그대로 복사): /exit  →  터미널에서  cd " + str(CWD) + " && codex")
+    print("     새 Codex에서: /status(Agents.md 줄·한도) → /skills → '규칙 3줄 요약' → 'verifier로 README 첫 줄 읽어 봐' → 과제 README 읽고 합의")
 
 
 # ---------------- board ----------------
