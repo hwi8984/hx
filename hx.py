@@ -37,12 +37,17 @@ def file_hash(p):
 DATA_EXT = {".csv", ".tsv", ".xlsx", ".xls", ".json", ".jsonl", ".parquet", ".txt", ".xml", ".db", ".sqlite"}
 SKIP_DIRS = {".git", ".hx", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", ".practice", "out", "verify", "src", "tests", "configs", ".agents", ".codex"}
 
+def under_hx(f):
+    """하네스 저장소가 과제 루트 안(예: 과제 루트가 홈 ~ 이고 하네스가 ~/hx)에 있을 때, 그 안의 파일은 과제 파일이 아니므로 건너뛴다."""
+    return CWD in HX.parents and (f == HX or HX in f.parents)
+
+
 def raw_hashes():
     """원본 데이터 해시: data/ 아래 전부(DATA_CARD 제외) + 그 밖의 폴더에 있는 데이터 확장자 파일. 원본 불변 확인용.
     경로는 항상 / 로 적는다(Windows에서 잠근 해시를 리눅스에서 비교해도 맞게)."""
     out = {}
     for f in sorted(CWD.rglob("*")):
-        if not f.is_file() or any(p in SKIP_DIRS for p in f.relative_to(CWD).parts[:-1]): continue
+        if not f.is_file() or under_hx(f) or any(p in SKIP_DIRS for p in f.relative_to(CWD).parts[:-1]): continue
         rel = f.relative_to(CWD)
         if rel.parts and rel.parts[0] == "data":
             if f.name != "DATA_CARD.md": out[rel.as_posix()] = file_hash(f)
@@ -92,8 +97,7 @@ def cmd_init(args):
     """하네스 파일을 과제 루트에 복사한다. 있는 파일은 덮지 않는다."""
     if HX == CWD:
         print("멈춤: 지금 폴더가 하네스 저장소 자체입니다. 과제 루트로 이동한 뒤 실행하세요."); sys.exit(1)
-    if CWD in HX.parents:
-        print(f"멈춤: 하네스가 과제 폴더 안({HX})에 받아졌습니다. 밖으로 옮기세요: mv {HX} ~/hx  → 그 뒤 과제 루트에서 python ~/hx/hx.py init"); sys.exit(1)
+    inside = CWD in HX.parents  # 과제 루트가 홈(~) 자체라 ~/hx 가 그 안에 있는 경우. 멈추지 않고 하네스 폴더를 과제 git 에서 제외한다
     start = args[0] if args else datetime.now().strftime("%H:%M")
     made, kept = [], []
     copy_if_absent(HX / "AGENTS.md", CWD / "AGENTS.md", made, kept)
@@ -120,6 +124,10 @@ def cmd_init(args):
     (STATE / "start.json").write_text(json.dumps({"start": start, "date": datetime.now().strftime("%Y-%m-%d")}), encoding="utf-8")
     (STATE / "raw_hashes.json").write_text(json.dumps(raw_hashes(), indent=1), encoding="utf-8")
     gi = CWD / ".gitignore"; g = read(gi)
+    if inside:
+        rel_hx = HX.relative_to(CWD).as_posix() + "/"
+        if rel_hx not in g:
+            g += ("" if not g or g.endswith("\n") else "\n") + rel_hx; gi.write_text(g, encoding="utf-8"); g = read(gi)
     if ".hx/" not in g:
         # verify/ 는 보고서·검증자 규칙·own_*.py 만 커밋한다. 스크린샷·응답 JSON·브라우저 프로필 같은 산출물은 제외
         g += ("" if not g or g.endswith("\n") else "\n") + ".hx/\n__pycache__/\n.pytest_cache/\n.venv/\ntests/.browser*/\n"
@@ -132,6 +140,7 @@ def cmd_init(args):
     print("setup 커밋: " + ("완료" if code == 0 else "실패 → " + out.splitlines()[-1][:80] if out else "실패"))
     if kept: print(f"있어서 둠: {', '.join(kept)}")
     print(f"시작 {start} · 원본 데이터 {len(raw_hashes())}개 해시 저장")
+    if inside: print(f"참고: 하네스 폴더({HX.name}/)가 과제 루트 안에 있어 git·원본 검사에서 제외했다. 과제 루트가 홈(~)이면 정상이다.")
     print("다음: Codex 껐다 켜기(/exit → codex) → /status(Agents.md 줄·한도) → /skills → '규칙 3줄 요약' → 'verifier로 README 첫 줄 읽어 봐' → 과제 README 읽고 합의")
 
 
@@ -266,6 +275,7 @@ def cmd_check(args):
     if extra: warn.append("루트에 정해진 5개 밖의 md: " + ", ".join(extra))
     hashes = {}
     for f in CWD.rglob("*"):
+        if under_hx(f): continue
         rel = f.relative_to(CWD).parts
         if f.is_file() and not any(x in rel for x in (".git", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", ".hx", ".practice")) \
            and rel[0] not in ("data", "verify") and not (len(rel) > 1 and rel[0] == "out" and rel[1] == "archive") and f.stat().st_size > 200:  # verify/ 증거 파일은 사본이어도 정상
