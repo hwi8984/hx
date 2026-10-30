@@ -11,7 +11,7 @@ description: Use right before freezing, in a freshly started Codex session that 
 `verify/report.md`가 없거나 동결 전 판정이 없으면 사용자에게 "검증해"를 요청해 verifier를 돌린다. report의 FAIL마다: 고칠 수 있으면 작은 수정 + 재검증, 아니면 DECISIONS §3 한계에 적는다.
 
 ## 2. 증거 확인 — 검증표 R마다 (새 표를 만들지 않는다)
-R 행의 증거 칸에 적힌 커밋·verifier 판정·증거 파일이 실제로 있는지 본다(`git log`, `verify/report.md`, `ls verify/`). 증거 없는 ✅는 ⏳로 되돌린다. verifier ○인데 PASS 없는 ✅도 되돌린다. 구현 위치는 README 구조도와 DECISIONS 카드 "어디"에서 확인하고, 못 찾는 R은 ❌. PLAN 에 추적표를 따로 만들지 않는다(m4 에서 27행 중복이 생겼다).
+R 행의 증거 칸에 적힌 커밋·verifier 판정·증거 파일이 실제로 있는지 본다(`git log`, `verify/report.md`, `ls verify/`). 증거 없는 ✅는 ⏳로 되돌린다. verifier ○인데 PASS 없는 ✅도 되돌린다. 구현 위치는 README 구조도와 DECISIONS 카드 "어디"에서 확인하고, 못 찾는 R은 ❌. PLAN 에 추적표를 따로 만들지 않는다(R 표와 중복된다).
 DECISIONS 카드 점검: 조건 묶음마다 카드가 있나, 카드마다 "담당자 말"과 "어디"가 채워졌나, 본문에 번호 대신 말을 썼나. 빠진 카드는 여기서 채운다(코드는 안 고친다).
 
 ## 3. 조건 장부 C 마감

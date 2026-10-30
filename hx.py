@@ -121,7 +121,7 @@ def cmd_init(args):
     (STATE / "raw_hashes.json").write_text(json.dumps(raw_hashes(), indent=1), encoding="utf-8")
     gi = CWD / ".gitignore"; g = read(gi)
     if ".hx/" not in g:
-        # verify/ 는 보고서·검증자 규칙·own_*.py 만 커밋한다. 스크린샷·응답 JSON·브라우저 프로필 같은 산출물은 제외 (m4: 59개 파일이 커밋됨)
+        # verify/ 는 보고서·검증자 규칙·own_*.py 만 커밋한다. 스크린샷·응답 JSON·브라우저 프로필 같은 산출물은 제외
         g += ("" if not g or g.endswith("\n") else "\n") + ".hx/\n__pycache__/\n.pytest_cache/\n.venv/\ntests/.browser*/\n"
         g += "verify/*\n!verify/report.md\n!verify/RULES.md\n!verify/AGENTS.md\n!verify/own_*.py\n!verify/own_*.cjs\n"
         gi.write_text(g, encoding="utf-8")
@@ -221,7 +221,7 @@ def cmd_check(args):
     """제출 전 점검. 종료코드 0 통과 / 1 문제 / 2 검사한 게 0건."""
     run = "--run" in args
     bad, warn, zero = [], [], False
-    # 1 원본 불변 — 잠근 뒤 바뀌거나 사라진 파일만 문제. 새로 생긴 파일(담당자 추가 파일)은 경고 (m4: CVD 접수 뒤 check 가 실패했던 원인)
+    # 1 원본 불변 — 잠근 뒤 바뀌거나 사라진 파일만 문제. 새로 생긴 파일(담당자 추가 파일)은 경고
     saved = json.loads(read(STATE / "raw_hashes.json") or "{}"); now = raw_hashes()
     if saved:
         changed = [k for k in saved if k in now and saved[k] != now[k]]
