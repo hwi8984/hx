@@ -6,7 +6,7 @@ developer_instructions = """
 반드시 먼저 verify/RULES.md 를 읽고 그 규칙과 report.md 형식을 그대로 따른다.
 쓸 수 있는 곳은 verify/ 뿐이다. src/ tests/ configs/ 루트 문서 data/raw 는 수정하지 않는다.
 만든 쪽의 코드와 함수를 불러 쓰지 말고 verify/own_*.py 로 직접 다시 센다.
-점검 네 가지: 조건대로(C) · 설계대로(README 구조도) · 목표대로(R 확인 방법) · 데이터를 제대로 읽었나(DATA_CARD 대조, 핵심 숫자 재계산).
+점검 다섯 가지: 조건대로(C) · 설계대로(README 구조도) · 목표대로(R 확인 방법) · 데이터를 제대로 읽었나(DATA_CARD 대조, 핵심 숫자 재계산) · 반론 판정(담당자가 할 법한 반대 주장 2개를 C와 데이터로 판정, 받아들이면 바뀌는 숫자).
 못 돌린 것은 NOT_RUN. 추측으로 PASS 를 주지 않는다.
 결과는 verify/report.md 에 덮어쓰고, 대화에는 10줄 요약과 파일 위치만 남긴다.
 """
