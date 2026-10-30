@@ -35,18 +35,19 @@ def file_hash(p):
 
 
 DATA_EXT = {".csv", ".tsv", ".xlsx", ".xls", ".json", ".jsonl", ".parquet", ".txt", ".xml", ".db", ".sqlite"}
-SKIP_DIRS = {".git", ".hx", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", "out", "verify", "src", "tests", "configs", ".agents", ".codex"}
+SKIP_DIRS = {".git", ".hx", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", ".practice", "out", "verify", "src", "tests", "configs", ".agents", ".codex"}
 
 def raw_hashes():
-    """원본 데이터 해시: data/ 아래 전부(DATA_CARD 제외) + 그 밖의 폴더에 있는 데이터 확장자 파일. 원본 불변 확인용."""
+    """원본 데이터 해시: data/ 아래 전부(DATA_CARD 제외) + 그 밖의 폴더에 있는 데이터 확장자 파일. 원본 불변 확인용.
+    경로는 항상 / 로 적는다(Windows에서 잠근 해시를 리눅스에서 비교해도 맞게)."""
     out = {}
     for f in sorted(CWD.rglob("*")):
         if not f.is_file() or any(p in SKIP_DIRS for p in f.relative_to(CWD).parts[:-1]): continue
         rel = f.relative_to(CWD)
         if rel.parts and rel.parts[0] == "data":
-            if f.name != "DATA_CARD.md": out[str(rel)] = file_hash(f)
+            if f.name != "DATA_CARD.md": out[rel.as_posix()] = file_hash(f)
         elif f.suffix.lower() in DATA_EXT and f.name not in ("requirements.txt",):
-            out[str(rel)] = file_hash(f)
+            out[rel.as_posix()] = file_hash(f)
     return out
 
 
@@ -120,7 +121,10 @@ def cmd_init(args):
     (STATE / "raw_hashes.json").write_text(json.dumps(raw_hashes(), indent=1), encoding="utf-8")
     gi = CWD / ".gitignore"; g = read(gi)
     if ".hx/" not in g:
-        gi.write_text(g + ("" if not g or g.endswith("\n") else "\n") + ".hx/\n__pycache__/\n.pytest_cache/\n.venv/\n", encoding="utf-8")
+        # verify/ 는 보고서·검증자 규칙·own_*.py 만 커밋한다. 스크린샷·응답 JSON·브라우저 프로필 같은 산출물은 제외 (m4: 59개 파일이 커밋됨)
+        g += ("" if not g or g.endswith("\n") else "\n") + ".hx/\n__pycache__/\n.pytest_cache/\n.venv/\ntests/.browser*/\n"
+        g += "verify/*\n!verify/report.md\n!verify/RULES.md\n!verify/AGENTS.md\n!verify/own_*.py\n!verify/own_*.cjs\n"
+        gi.write_text(g, encoding="utf-8")
     if not (CWD / ".git").exists(): sh("git init -q")
     if sh("git config user.name")[1].strip() == "": sh('git config user.name "codex" && git config user.email "codex@local"')
     sh("git add -A"); code, out = sh('git commit -q -m "setup: 하네스 설치 | verify: 루트 문서, 원본 해시 저장"')
@@ -128,7 +132,7 @@ def cmd_init(args):
     print("setup 커밋: " + ("완료" if code == 0 else "실패 → " + out.splitlines()[-1][:80] if out else "실패"))
     if kept: print(f"있어서 둠: {', '.join(kept)}")
     print(f"시작 {start} · 원본 데이터 {len(raw_hashes())}개 해시 저장")
-    print("다음: Codex 껐다 켜기(/exit → codex) → /skills → '규칙 3줄 요약' → 'verifier로 README 첫 줄 읽어 봐' → 과제 README 읽고 합의")
+    print("다음: Codex 껐다 켜기(/exit → codex) → /status(Agents.md 줄·한도) → /skills → '규칙 3줄 요약' → 'verifier로 README 첫 줄 읽어 봐' → 과제 README 읽고 합의")
 
 
 # ---------------- board ----------------
@@ -217,19 +221,33 @@ def cmd_check(args):
     """제출 전 점검. 종료코드 0 통과 / 1 문제 / 2 검사한 게 0건."""
     run = "--run" in args
     bad, warn, zero = [], [], False
-    # 1 원본 불변
+    # 1 원본 불변 — 잠근 뒤 바뀌거나 사라진 파일만 문제. 새로 생긴 파일(담당자 추가 파일)은 경고 (m4: CVD 접수 뒤 check 가 실패했던 원인)
     saved = json.loads(read(STATE / "raw_hashes.json") or "{}"); now = raw_hashes()
-    if saved and saved != now: bad.append("원본 데이터가 바뀜: " + ", ".join(k for k in set(saved) | set(now) if saved.get(k) != now.get(k)))
-    # 2 테스트
+    if saved:
+        changed = [k for k in saved if k in now and saved[k] != now[k]]
+        gone = [k for k in saved if k not in now]
+        new = [k for k in now if k not in saved]
+        if changed: bad.append("원본 데이터가 바뀜: " + ", ".join(changed))
+        if gone: bad.append("잠근 원본이 사라짐: " + ", ".join(gone))
+        if new: warn.append(f"잠근 뒤 새로 생긴 데이터 파일 {len(new)}개 (담당자 추가 파일이면 정상, DATA_CARD 에 절이 있나): " + ", ".join(new[:5]))
+    # 2 테스트 — pytest 가 있으면 pytest, 없으면 표준 unittest 로 (시험 리눅스에 pytest 보장 없음)
     tdir = CWD / "tests"
     if tdir.exists() and (any(tdir.rglob("test*.py")) or any(tdir.rglob("*_test.py"))):
         _, out = sh(f"{sys.executable} -m pytest -q tests", timeout=300)
-        mm = re.search(r"(\d+) passed", out); sk = re.search(r"(\d+) skipped", out); fa = re.search(r"(\d+) failed", out)
-        passed = int(mm.group(1)) if mm else 0
-        if "No module named pytest" in out: bad.append("pytest가 없음 → pip install pytest 뒤 다시"); zero = True
-        elif fa: bad.append(f"테스트 실패 {fa.group(1)}개")
-        if passed == 0 and "No module named pytest" not in out: zero = True; bad.append("통과한 테스트 0개 (검사한 게 없음)")
-        else: print(f"테스트 통과 {passed}개" + (f", skip {sk.group(1)}" if sk else ""))
+        runner = "pytest"
+        if "No module named pytest" in out:
+            runner = "unittest"
+            _, out = sh(f"{sys.executable} -m unittest discover -s tests -p '*test*.py'", timeout=300)
+        if runner == "pytest":
+            mm = re.search(r"(\d+) passed", out); sk = re.search(r"(\d+) skipped", out); fa = re.search(r"(\d+) failed", out)
+            passed = int(mm.group(1)) if mm else 0; failed = int(fa.group(1)) if fa else 0; skipped = int(sk.group(1)) if sk else 0
+        else:
+            mm = re.search(r"Ran (\d+) tests?", out); fa = re.search(r"failures=(\d+)", out); er = re.search(r"errors=(\d+)", out); sk = re.search(r"skipped=(\d+)", out)
+            ran = int(mm.group(1)) if mm else 0; failed = (int(fa.group(1)) if fa else 0) + (int(er.group(1)) if er else 0); skipped = int(sk.group(1)) if sk else 0
+            passed = max(0, ran - failed - skipped)
+        if failed: bad.append(f"테스트 실패 {failed}개 ({runner})")
+        if passed == 0: zero = True; bad.append("통과한 테스트 0개 (검사한 게 없음)")
+        else: print(f"테스트 통과 {passed}개 ({runner})" + (f", skip {skipped}" if skipped else ""))
     else:
         zero = True; bad.append("tests/ 에 테스트가 없음 (검사한 게 없음)")
     # 3 결과물
@@ -249,8 +267,8 @@ def cmd_check(args):
     hashes = {}
     for f in CWD.rglob("*"):
         rel = f.relative_to(CWD).parts
-        if f.is_file() and not any(x in rel for x in (".git", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", ".hx")) \
-           and not (rel[0] == "data") and not (len(rel) > 1 and rel[0] == "out" and rel[1] == "archive") and f.stat().st_size > 200:
+        if f.is_file() and not any(x in rel for x in (".git", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", ".hx", ".practice")) \
+           and rel[0] not in ("data", "verify") and not (len(rel) > 1 and rel[0] == "out" and rel[1] == "archive") and f.stat().st_size > 200:  # verify/ 증거 파일은 사본이어도 정상
             hashes.setdefault(file_hash(f), []).append(str(f.relative_to(CWD)))
     dups = [v for v in hashes.values() if len(v) > 1]
     if dups: warn.append("같은 내용 파일(사본): " + "; ".join(" = ".join(v) for v in dups[:5]))
@@ -265,7 +283,8 @@ def cmd_check(args):
         if not m: warn.append("README '바로 실행'에 코드 펜스(```)로 적힌 명령이 없어 실행 확인을 못 함")
         else:
             cmd = m.group(1).strip().splitlines()[0]
-            if re.search(r"0\.0\.0\.0|PORT|runserver|flask run|uvicorn|serve|http\.server|npm (start|run dev)", cmd):
+            if cmd.startswith("("): pass  # 틀의 자리 표시 — 위에서 이미 '괄호 자리' 문제로 잡힘
+            elif re.search(r"0\.0\.0\.0|PORT|runserver|flask run|uvicorn|serve|http\.server|npm (start|run dev)", cmd):
                 warn.append(f"README 실행 명령이 서버라 자동 확인 안 함(직접 미리보기로 확인): {cmd}")
             else:
                 code, out = sh(cmd, timeout=120)

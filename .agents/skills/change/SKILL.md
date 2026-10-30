@@ -14,7 +14,7 @@ description: Use when the stakeholder changes a requirement or condition, or sen
 어느 R이 바뀌나 / 어느 구조도 상자·파일·configs 키가 바뀌나 / 이미 낸 숫자 중 무엇이 달라지나.
 
 ## 3. 다음 단계 제안
-바뀐 R을 다루는 step 계획 3줄(+C)을 내고 승인을 기다린다. 변경 자체로는 커밋하지 않는다. 구현 step 커밋에 포함.
+바뀐 R을 다루는 step 계획 블록 4줄(할 일 / 확인 방법 / 완료 기준 / 넣는 조건)을 PLAN 단계 절에 쓰고 채팅에 보여 준 뒤 승인을 기다린다. 변경 자체로는 커밋하지 않는다. 구현 step 커밋에 포함.
 변경 뒤 첫 step이 끝나면 "검증해"를 권한다(verifier가 새 C 반영을 본다).
 
 ## 4. 해석이 갈리면

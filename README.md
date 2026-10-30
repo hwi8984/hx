@@ -11,7 +11,7 @@
    - init이 git 사용자 이름이 없으면 설정하고 `setup` 커밋까지 한다. 과제가 준 데이터 파일은 어디 있든 원본으로 잠근다.
    - 과제가 준 데이터가 `data/raw` 밖에 있으면 옮기지 않는다(원본 보호). 과제 README가 다른 위치를 정했으면 그것을 따른다.
 3. 사용자에게 알린다: "Codex를 껐다 켜 주세요(`/exit` → `codex`). 그래야 AGENTS.md가 적용됩니다." 하위 에이전트(verifier)는 기본으로 켜져 있어 따로 켤 것이 없다.
-4. (새 세션에서) 사용자가 확인: `/skills`에 5개 → "지금 적용 중인 규칙 3줄 요약해줘" → "verifier 에이전트로 README 첫 줄만 읽어 봐".
+4. (새 세션에서) 사용자가 확인: `/status`(Agents.md 줄, 5시간 한도 남은 %와 초기화 시각) → `/skills`에 5개 → "지금 적용 중인 규칙 3줄 요약해줘" → "verifier 에이전트로 README 첫 줄만 읽어 봐".
    - skills가 안 보여도 AGENTS.md "상태 → 절차" 표가 같은 파일을 읽게 하므로 그대로 진행한다.
    - verifier가 안 뜨면 검증은 두 번째 터미널에서 `cd verify && codex`.
 5. 과제 README를 읽고 `.agents/skills/kickoff/SKILL.md` 절차를 시작한다.
@@ -31,6 +31,13 @@ hx.py                  init · board · lock · check
 ## 흐름
 합의(kickoff) → v0(step, 얇게 끝까지) → 확장(step 반복, 변경은 change) → 동결 검토(review, 새 세션) → 서술형 준비(explain).
 기록은 에이전트가 쓰고 사람은 읽는다. 상태는 시간이 아니라 조건(R·C·커밋)으로 넘어간다. 검증은 만든 쪽이 아니라 verifier가 다시 센다.
+
+## 사람이 읽는 것 (이것만)
+- 합의 끝: PLAN 최종 합의 4줄.
+- 단계 끝마다: DECISIONS 의 새 결정 카드 1장(담당자 말 · 한 줄 답 · 왜 · 다른 선택 · 어디 · 확인 · 틀리면). 1분.
+- 검증 뒤: verify/report.md 맨 위 사람용 5줄.
+- 제출 직전 5분: DECISIONS §0 (맨 위 "문항 → 볼 곳" 표부터). 서술형 중에는 그 표대로 그 파일의 그 절만 연다.
+- 파일 역할: README = 결과물 설명서(구조·코드 위치·바꾸려면 여기) / DECISIONS = 왜 그렇게 판단했나 / WORKLOG = 어떻게 흘러갔나 / PLAN = 담당자가 뭐라 했고 뭘 하기로 했나 / report = 검증.
 
 ## 라이선스
 MIT
