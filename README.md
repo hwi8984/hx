@@ -5,12 +5,12 @@
 ## 설치 (Codex가 이 절을 읽고 그대로 한다 — 3분)
 전제: 이 저장소는 과제 폴더 **밖** `~/hx`에 받는다. 터미널의 현재 폴더는 **과제 루트**다. Codex는 업데이트하지 않는다. 과제의 기존 파일은 덮지 않는다.
 
-1. 아직 안 받았으면: `git clone https://github.com/hwi8984/hx ~/hx`
+1. 받기는 사용자가 Codex를 켜기 **전에** 터미널에서 직접 친다: `git clone https://github.com/hwi8984/hx ~/hx` — Codex는 과제 폴더 밖에 쓰는 권한이 막혀 있을 수 있다. `~/hx`가 아직 없으면 직접 받지 말고 사용자에게 이 한 줄을 치라고 알린다.
 2. 과제 루트에서: `python ~/hx/hx.py init 10:00` (시험 시작 시각 HH:MM. python3이면 `python3`. Windows PowerShell은 `~` 대신 `$HOME/hx`)
    - 루트에 `AGENTS.md PLAN.md WORKLOG.md DECISIONS.md`, `.agents/skills/`(5), `.codex/agents/verifier.toml`, `verify/`, `data/DATA_CARD.md`가 생긴다. 있던 파일은 그대로 둔다. 과제 README가 있으면 맨 아래에 제출 절 틀을 덧붙인다.
    - init이 git 사용자 이름이 없으면 설정하고 `setup` 커밋까지 한다. 과제가 준 데이터 파일은 어디 있든 원본으로 잠근다.
    - 과제가 준 데이터가 `data/raw` 밖에 있으면 옮기지 않는다(원본 보호). 과제 README가 다른 위치를 정했으면 그것을 따른다.
-3. 사용자에게 알린다: "`/experimental`에서 Multi-agents를 켜고 Codex를 껐다 켜 주세요. 그래야 AGENTS.md와 verifier가 적용됩니다."
+3. 사용자에게 알린다: "Codex를 껐다 켜 주세요(`/exit` → `codex`). 그래야 AGENTS.md가 적용됩니다." 하위 에이전트(verifier)는 기본으로 켜져 있어 따로 켤 것이 없다.
 4. (새 세션에서) 사용자가 확인: `/skills`에 5개 → "지금 적용 중인 규칙 3줄 요약해줘" → "verifier 에이전트로 README 첫 줄만 읽어 봐".
    - skills가 안 보여도 AGENTS.md "상태 → 절차" 표가 같은 파일을 읽게 하므로 그대로 진행한다.
    - verifier가 안 뜨면 검증은 두 번째 터미널에서 `cd verify && codex`.

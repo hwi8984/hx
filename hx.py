@@ -128,7 +128,7 @@ def cmd_init(args):
     print("setup 커밋: " + ("완료" if code == 0 else "실패 → " + out.splitlines()[-1][:80] if out else "실패"))
     if kept: print(f"있어서 둠: {', '.join(kept)}")
     print(f"시작 {start} · 원본 데이터 {len(raw_hashes())}개 해시 저장")
-    print("다음: /experimental에서 Multi-agents 켜기 → Codex 껐다 켜기 → /skills → '규칙 3줄 요약' → 'verifier로 README 첫 줄 읽어 봐' → 과제 README 읽고 합의")
+    print("다음: Codex 껐다 켜기(/exit → codex) → /skills → '규칙 3줄 요약' → 'verifier로 README 첫 줄 읽어 봐' → 과제 README 읽고 합의")
 
 
 # ---------------- board ----------------
