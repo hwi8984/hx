@@ -29,7 +29,7 @@ hx는 이 셋을 **파일로 강제**한다. 요구는 표(R)에, 조건은 장�
 ├ templates/ ────────────────────▶  ├ DECISIONS.md       §0 제출 전 요약 · 결정 카드 D · AI 교정 · 한계
 │  PLAN·WORKLOG·DECISIONS·README     ├ WORKLOG.md         단계마다 두 문장 (시간순)
 │  DATA_CARD·verify_report           ├ README.md          결과물 설명서 (구조도 · 바꾸려면 여기 · 성적표)
-├ .agents/skills/ (5) ───────────▶  ├ .agents/skills/    kickoff · step · change · review · explain
+├ .agents/skills/ (5) ───────────▶  ├ .agents/skills/    kickoff · step(+web.md) · change · review · explain
 ├ .codex/agents/verifier.toml ───▶  ├ .codex/agents/     verifier 하위 에이전트 정의
 └ verify/ RULES·AGENTS ──────────▶  ├ verify/            RULES.md · report.md · own_*.py (검증자 전용)
                                      ├ data/DATA_CARD.md  원본 설명 · 함정 10종 점검
